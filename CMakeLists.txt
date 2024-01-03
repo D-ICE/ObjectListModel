@@ -10,10 +10,14 @@
 
 cmake_minimum_required(VERSION 3.11 FATAL_ERROR)
 
+set(OBJLISTMODEL_FETCH_GTEST ON CACHE BOOL "Enable Google Test fetching for ObjectListModel")
+
 # DEPENDENCIES
 
-set(GTEST_REPOSITORY "https://github.com/google/googletest" CACHE STRING "Repository of googletest")
-set(GTEST_TAG "master" CACHE STRING "Git tag/branch of googletest")
+if(OBJLISTMODEL_FETCH_GTEST)
+    set(GTEST_REPOSITORY "https://github.com/google/googletest" CACHE STRING "Repository of googletest")
+    set(GTEST_TAG "master" CACHE STRING "Git tag/branch of googletest")
+endif(OBJLISTMODEL_FETCH_GTEST)
 
 # ┌──────────────────────────────────────────────────────────────────┐
 # │                       PROJECT SETTINGS                           │
@@ -80,6 +84,7 @@ message(STATUS "OBJLISTMODEL_USE_NAMESPACE    : " ${OBJLISTMODEL_USE_NAMESPACE})
 message(STATUS "OBJLISTMODEL_NAMESPACE        : " ${OBJLISTMODEL_NAMESPACE})
 message(STATUS "OBJLISTMODEL_BUILD_SHARED     : " ${OBJLISTMODEL_BUILD_SHARED})
 message(STATUS "OBJLISTMODEL_FOLDER_PREFIX    : " ${OBJLISTMODEL_FOLDER_PREFIX})
+message(STATUS "OBJLISTMODEL_FETCH_GTEST      : " ${OBJLISTMODEL_FETCH_GTEST})
 
 # Tests
 message(STATUS "OBJLISTMODEL_ENABLE_TESTS     : " ${OBJLISTMODEL_ENABLE_TESTS})
@@ -114,11 +119,13 @@ find_package(Qt5Core CONFIG REQUIRED)
 include(FetchContent)
 
 # googletest
-FetchContent_Declare(
-    googletest
-    GIT_REPOSITORY ${GTEST_REPOSITORY}
-    GIT_TAG        ${GTEST_TAG}
-)
+if(OBJLISTMODEL_FETCH_GTEST)
+    FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY ${GTEST_REPOSITORY}
+        GIT_TAG        ${GTEST_TAG}
+    )
+endif(OBJLISTMODEL_FETCH_GTEST)
 
 set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 set(FETCHCONTENT_QUIET ON)
