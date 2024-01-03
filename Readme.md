@@ -6,6 +6,18 @@ Additional data models aimed to bring more power to QML applications by using us
 
 * ObjectList : a much nicer way to expose C++ list to QML than the quick & dirty `QList<QObject*>` property . Supports all the strong model features of QAbstractListModel while showing the simple and well know API of QList.
 
+## Fork info :fork_and_knife:
+
+This fork adds a registerNotifySignals() method to register notify signal pointers in order to optimize the property change to dataChanged connection. Internally this enables bypassing expensive calls to QObject::sender() and QObject::senderSignalIndex().
+
+Usage:
+```
+Olm::ObjectList<FooBar>* foobarModel = new Olm::ObjectList<FooBar>();
+foobarModel->registerNotifySignals({&FooBar::fooChanged, &FooBar::barChanged, &FooBar::bazChanged});
+```
+
+This fork also adds a setting to disable fetching gtest with CMake FetchContent to prevent conflicts : `OBJLISTMODEL_FETCH_GTEST`.
+
 ## Dependencies
 
 * [gtest](https://github.com/google/googletest) : Unit and mock testing framework
