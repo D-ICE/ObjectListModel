@@ -239,6 +239,31 @@ public:
     }
 
 public: // C++ API
+    using SignalPointer = void (ItemType::*)();
+
+    void registerNotifySignals(QVector<SignalPointer> notifySignals)
+    {
+        for(auto notifySignal : notifySignals)
+        {
+            const QMetaMethod notifySignalMethod = QMetaMethod::fromSignal(notifySignal);
+            const int notifySignalIndex = notifySignalMethod.methodIndex();
+            QVector<int> roles;
+            for (int i = 0, role = (baseRole() +1); i < _metaObj.propertyCount(); ++i, ++role) {
+                const QMetaProperty property = _metaObj.property(i);
+                if (property.notifySignalIndex() == notifySignalIndex)
+                {
+                    roles.append(role);
+                    _signalIdxToRole.remove(notifySignalIndex);
+                }
+            }
+            if (!roles.isEmpty())
+            {
+                _signalPointerToRoles.append({notifySignal, roles});
+            }
+      }
+
+    }
+
     ItemType* at(int idx) const {
         ItemType* ret = Q_NULLPTR;
         if(idx >= 0 && idx < _items.size())
@@ -514,6 +539,14 @@ protected: // internal stuff
             if(!item->parent())
                 item->setParent(this);
 
+            for (const auto& [signalPointer, roles] : _signalPointerToRoles) {
+                auto connection = connect(item, signalPointer, this, [item, roles, this] {
+                    const int row = _items.indexOf(item);
+                    const QModelIndex index = QAbstractListModel::index(row, 0, {});
+                    emit dataChanged(index, index, roles);
+                });
+            }
+
             for(QHash<int, int>::const_iterator it = _signalIdxToRole.constBegin(); it != _signalIdxToRole.constEnd(); ++it)
                 connect(item, item->metaObject()->method(it.key()), this, _handler, Qt::UniqueConnection);
 
@@ -653,6 +686,7 @@ private: // data members
     QHash<int, int>            _signalIdxToRole;
     QList<ItemType*>           _items;
     QHash<QString, ItemType*>  _indexByUid;
+    QVector<QPair<SignalPointer, QVector<int>>> _signalPointerToRoles;
 };
 
 /**
