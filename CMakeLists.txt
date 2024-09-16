@@ -107,10 +107,10 @@ endif(OBJLISTMODEL_ENABLE_INSTALL)
 message(STATUS "---------------- DONE WITH OPTIONS. -----------------")
 
 # ┌──────────────────────────────────────────────────────────────────┐
-# │                         QT5 CMAKE                                │
+# │                         QT6 CMAKE                                │
 # └──────────────────────────────────────────────────────────────────┘
 
-find_package(Qt5Core CONFIG REQUIRED)
+find_package(Qt6 REQUIRED COMPONENTS Core5Compat)
 
 # ┌──────────────────────────────────────────────────────────────────┐
 # │                       DEPENDENCIES                               │
@@ -189,9 +189,9 @@ target_include_directories(${OBJLISTMODEL_TARGET} PUBLIC $<BUILD_INTERFACE:${OBJ
 # Avoid libnetcode.io on darwin for example.
 set_target_properties(${OBJLISTMODEL_TARGET} PROPERTIES PREFIX "")
 
-# Link Qt5
+# Link Qt6
 set_target_properties(${OBJLISTMODEL_TARGET} PROPERTIES AUTOMOC TRUE)
-qt5_use_modules( ${OBJLISTMODEL_TARGET} Core Qml)
+target_link_libraries(${OBJLISTMODEL_TARGET} PRIVATE Qt6::Core5Compat)
 
 set_target_properties(${OBJLISTMODEL_TARGET} PROPERTIES FOLDER ${OBJLISTMODEL_FOLDER_PREFIX})
 
